@@ -1,0 +1,81 @@
+---
+title: "Argument encoding in Evenki dialects: Maps"
+author: "ANONYMIZED"
+date: "2024-05-01"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+## Installing packages
+
+```{r Installing, message=FALSE, warning=FALSE}
+#R version: R 4.3.1
+#install.packages("tidyverse") ##for tables and plots
+library(dplyr)
+library(tidyr)
+
+#install.packages("lingtypology", dependencies = TRUE) ##for creating maps
+library(lingtypology)
+
+```
+
+## Preprocessing
+
+```{r Preprocessing}
+setwd("D:/R_docs/EvenkiArg/final")
+EvenkiArg<- read.csv("EvenkiArg_data.csv", header = TRUE)
+View(EvenkiArg)
+
+# Places of collecting data extracted from the corpus sample
+
+EvenkiArg %>%count(place, dialectal_group, dialect)-> EvenkiArg_places
+View(EvenkiArg_places)
+
+write.csv(EvenkiArg_places, file='EvenkiArg_places_raw.csv') ##exports into a separate file
+write.table(EvenkiArg_places, file = "EvenkiArg_places_raw.txt", sep = "\t", row.names = FALSE, col.names = TRUE) ##exports into a separate txt-file
+
+#Then, coordinates, data on dialects for which there are no corpus data, and some comments were added manually in EvenkiArg_places.csv
+
+EvenkiArg_places<- read.csv("EvenkiArg_places.csv", header = TRUE) ##reads a manually modified file
+```
+
+## Visualization
+
+### Dataset1
+
+```{r VisualizationCorp, message=FALSE, warning=FALSE}
+
+#Preprocessing
+EvenkiArg_places_corp<-subset(EvenkiArg_places, (source=="corp") | (source=="descr_corp"))  ##data for the map (places with coordinates): selects corpus data only (two excluded dialects left, as otherwise map.feature does not work: the region seems to be too small)
+
+EvenkiArg_places_corp%>%mutate(cluster = case_when(dialect_simple %in% c('Yerbogachen', 'Sym') ~ 'cluster_1', dialect_simple %in% c('StonyTung', 'Barhahan', 'Ilimpi') ~ 'cluster_2', dialect_simple == 'Taimyr' ~ 'cluster_3'))->EvenkiArg_places_corp #creates “cluster”-column
+View(EvenkiArg_places_corp)
+
+#Map2. Argument encoding vs. dialectal groups: corpus data
+map.feature(languages = EvenkiArg_places_corp$place, features = EvenkiArg_places_corp$dialectal_group, stroke.features = EvenkiArg_places_corp$cluster, label = EvenkiArg_places_corp$dialect_label, label.fsize = 10, label.position = "left", label.hide = FALSE, latitude = EvenkiArg_places_corp$latitude, longitude = EvenkiArg_places_corp$longitude, shape = TRUE, stroke.color = c("#5926A5", "#26A559", "#A55926"), title = "Dialectal groups", stroke.title = "Argument encoding") ##creates a map: Argument encoding vs. dialectal groups
+```
+
+### Dataset2
+
+```{r VisualizationAll, message=FALSE, warning=FALSE}
+
+#Preprocessing
+EvenkiArg_places%>%mutate(cluster = case_when(dialect_simple == 'Tommot' ~ 'cluster_1', dialect_simple == 'Taimyr' ~ 'cluster_2', dialect_simple %in% c('AyanMaya', 'Sakhalin', 'KurUrmi', 'ChulmanGiluy') ~ 'cluster_3', dialect_simple == 'UchurZeya' ~ 'cluster_4', dialect_simple %in% c('Nepa', 'TokmaLena', 'Tungir') ~ 'cluster_5', dialect_simple %in% c('Yerbogachen', 'Sym', 'StonyTung', 'Barhahan', 'Ilimpi') ~ 'cluster_6'))->EvenkiArg_places_all #creates “cluster”-column
+
+View (EvenkiArg_places_all)
+write.csv(EvenkiArg_places_all, file='EvenkiArg_places_all.csv') ##exports into a separate file
+
+#Map 3. Argument encoding vs. dialectal groups: corpus data and data from descriptions
+map.feature(languages = EvenkiArg_places_all$place, features = EvenkiArg_places_all$dialectal_group, stroke.features = EvenkiArg_places_all$cluster, label = EvenkiArg_places_all$dialect_label, label.fsize = 10, label.position = "right", label.hide = FALSE, latitude = EvenkiArg_places_all$latitude, longitude = EvenkiArg_places_all$longitude, shape = TRUE, stroke.color = c( "#E6B0AA","#A13528", "#A17228", "#57A128", "#2894A1", "#7228A1"), title = "Dialectal groups", stroke.title = "Argument encoding") #creates a map: Argument encoding vs. dialectal groups
+
+# Map without clusters
+map.feature(languages = EvenkiArg_places$place, features = EvenkiArg_places$dialectal_group, label = EvenkiArg_places$dialect_label, label.fsize = 10, label.position = "right", label.hide = FALSE, latitude = EvenkiArg_places$latitude, longitude = EvenkiArg_places$longitude, shape = TRUE, title = "Dialectal groups", stroke.title = "Argument encoding")
+```
+
+### Places of collecting data
+
+```{r VisualizationPlaces, message=FALSE, warning=FALSE}
+#Map 1. Evenki dialects and places of recording
+map.feature(languages = EvenkiArg_places$place, features = EvenkiArg_places$dialect, latitude = EvenkiArg_places$latitude, longitude = EvenkiArg_places$longitude, label = EvenkiArg_places$dialect_label, label.fsize = 10, label.position = "right", label.hide = FALSE, color = c("#F9E79F", "#F1C40F", "#9A7D0A", "#F8C471", "#F39C12", "#E67E22", "#D35400", "#1A5276", "#2980B9", "#AED6F1", "#E6B0AA", "#FADBD8", "#E74C3C", "#A93226", "#943126"), title = "Evenki dialects")
+```
