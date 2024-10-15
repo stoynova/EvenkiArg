@@ -2,5 +2,5 @@
 <p></p>
 <p>Folders:
 <p>r_code -- rmd and html files containing the R-code</p>
-<p>data -- EVENKI_ARG_share.xls (the whole annotated dataset), csv files used in the R-code (based on EVENKI_ARG_share.xls) </p>
+<p>data -- EVENKI_ARG_share.xls (the whole annotated dataset), csv files used in the R-code (based on EVENKI_ARG_share.xlsx) </p>
 <p>maps_figures -- maps and figures used in the paper</p>
